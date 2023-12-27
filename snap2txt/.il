@@ -1,0 +1,10 @@
+.DS_Store
+Dockerfile
+db.sqlite3
+docker-compose.yml
+project_contents.txt
+requirements.txt
+__init__.py
+.devcontainer
+__pycache__
+vendors
