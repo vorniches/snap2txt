@@ -1,0 +1,13 @@
+LICENSE
+README.md
+setup.py
+snap2txt/.il
+snap2txt/.wl
+snap2txt/__init__.py
+snap2txt/__main__.py
+snap2txt/saver.py
+snap2txt.egg-info/PKG-INFO
+snap2txt.egg-info/SOURCES.txt
+snap2txt.egg-info/dependency_links.txt
+snap2txt.egg-info/entry_points.txt
+snap2txt.egg-info/top_level.txt
