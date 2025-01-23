@@ -1,2 +1,0 @@
-[console_scripts]
-snap2txt = snap2txt.__main__:main
