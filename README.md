@@ -88,4 +88,4 @@ Snap2Txt is open-sourced software licensed under the [MIT license](LICENSE).
 
 ## Support
 
-For support, questions, or feedback, please [open an issue](https://github.com/yourusername/snap2txt/issues) in the GitHub repository.
+For support, questions, or feedback, please [open an issue](https://github.com/vorniches/snap2txt/issues) in the GitHub repository.
