@@ -16,6 +16,8 @@ Install Snap2Txt with pip:
 pip install snap2txt
 ```
 
+> **Note**: The installation now automatically provides `.il` and `.wl` files along with the package.
+
 ## Usage
 
 Navigate to your project directory and run:
@@ -24,14 +26,43 @@ Navigate to your project directory and run:
 snap2txt
 ```
 
+By default, Snap2Txt will scan all files and directories in the current folder and produce an output file called `project_contents.txt`.
+
+### Locate the .il and .wl Files
+
+If you need to see where Snap2Txt’s `.il` and `.wl` files were installed on your system (e.g., to customize them), run:
+
+```bash
+snap2txt --show-locations
+```
+
+This will print the full path to each file, so you can open or edit them as needed.
+
 ### Optional Flags
 
-- `--il`: Use an ignore list from a `.il` file.
-- `--wl`: Use a whitelist from a `.wl` file.
+- `--il`: Use ignore list defined in `.il`.
+- `--wl`: Use whitelist defined in `.wl`.
+
+Example:
+
+```bash
+snap2txt --il
+```
+
+```bash
+snap2txt --wl
+```
 
 ## Configuration
 
-Create `.il` and `.wl` files in your project directory to specify patterns to ignore or include, respectively.
+Snap2Txt respects two files for filtering:
+
+1. **Ignore List (`.il`)**: Exclude certain files/directories.
+2. **Whitelist (`.wl`)**: Include only certain files/directories.
+
+By default, Snap2Txt installs a basic `.il` and `.wl` in the package directory. To tailor the behavior for your project, you can edit those files or replace them with your own custom rules.
+
+> **Tip**: To quickly locate where these files were installed, use `snap2txt --show-locations`.
 
 ### Example `.il` File
 
