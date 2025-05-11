@@ -22,6 +22,18 @@ def match_pattern(path, patterns):
             return True
     return False
 
+def read_file_with_fallback(filepath):
+    encodings = ['utf-8', 'cp1251', 'latin-1', 'cp1252']
+    for encoding in encodings:
+        try:
+            with open(filepath, 'r', encoding=encoding) as f:
+                return f.read()
+        except UnicodeDecodeError:
+            continue
+        except Exception as e:
+            return f"Error reading file: {e}"
+    return "Error reading file: all encoding attempts failed"
+
 def save_project_structure_and_files(root_path, output_file, ignore_list=None, whitelist=None):
     """
     Save the project structure and contents of all files in the project to a text file,
@@ -50,12 +62,12 @@ def save_project_structure_and_files(root_path, output_file, ignore_list=None, w
 
             try:
                 with open(os.path.join(root, file), 'r') as f:
-                    content = f.read()
+                    content = read_file_with_fallback(os.path.join(root, file))
                 file_contents.append(f"{file}:\n```\n{content}\n```\n")
             except Exception as e:
-                file_contents.append(f"{file}:\n```\nError reading file: {e}\n```\n")
+                    file_contents.append(f"{file}:\n```\nError reading file: {e}\n```\n")
 
-    with open(output_file, 'w') as f:
+    with open(output_file, 'w', encoding='utf-8') as f:
         f.write("Project Structure:\n")
         f.write("\n".join(project_structure) + "\n\n")
         f.write("File Contents:\n")
