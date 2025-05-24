@@ -16,10 +16,38 @@ def read_list_file(file_path):
 def match_pattern(path, patterns):
     """
     Check if a given path matches any of the patterns in the list.
+    Patterns can be:
+    - 'dir/' to match directory 'dir' in any part of the path
+    - 'file.ext' to match any file with that name
+    - '*.ext' to match any file with that extension
     """
-    for pattern in patterns or []:
-        if pattern in path:
-            return True
+    if not patterns:
+        return False
+        
+    # Normalize path for consistent matching
+    path = path.replace('\\', '/').lower()
+    
+    for pattern in patterns:
+        pattern = pattern.strip().lower()
+        if not pattern:
+            continue
+            
+        # If pattern ends with /, it's a directory pattern
+        if pattern.endswith('/'):
+            dir_name = pattern.rstrip('/')
+            # Check if any directory in path matches the pattern
+            if f'/{dir_name}/' in path or path.endswith(f'/{dir_name}') or path == dir_name:
+                return True
+        # If pattern starts with *., it's an extension pattern
+        elif pattern.startswith('*.'):
+            ext = pattern[1:]
+            if path.endswith(ext):
+                return True
+        # Otherwise, it's a filename pattern
+        else:
+            if path.endswith(f'/{pattern}') or path == pattern:
+                return True
+                
     return False
 
 def save_project_structure_and_files(root_path, output_file, ignore_list=None, whitelist=None):
@@ -31,6 +59,9 @@ def save_project_structure_and_files(root_path, output_file, ignore_list=None, w
     file_contents = []
 
     for root, dirs, files in os.walk(root_path):
+        # Filter hidden directories
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        
         # Filter directories and files based on ignore_list and whitelist
         dirs[:] = [
             d for d in dirs
@@ -39,27 +70,48 @@ def save_project_structure_and_files(root_path, output_file, ignore_list=None, w
         ]
         files = [
             f for f in files
-            if not match_pattern(f, ignore_list) and
+            if not f.startswith('.') and  # Skip hidden files
+               not match_pattern(f, ignore_list) and
                (not whitelist or match_pattern(f, whitelist))
         ]
 
         for file in files:
-            rel_dir = os.path.relpath(root, root_path)
-            rel_file = os.path.join(rel_dir, file)
-            project_structure.append(rel_file.replace("\\", "/"))
+            file_path = os.path.join(root, file)
+            rel_path = os.path.relpath(file_path, root_path).replace("\\", "/")
+            project_structure.append(rel_path)
 
             try:
-                with open(os.path.join(root, file), 'r') as f:
-                    content = f.read()
-                file_contents.append(f"{file}:\n```\n{content}\n```\n")
+                # Try reading with UTF-8 first, fall back to other encodings
+                encodings = ['utf-8', 'cp1251', 'latin1', 'iso-8859-1', 'windows-1251']
+                content = None
+                
+                for encoding in encodings:
+                    try:
+                        with open(file_path, 'r', encoding=encoding) as f:
+                            content = f.read()
+                        break
+                    except UnicodeDecodeError:
+                        continue
+                
+                if content is None:
+                    raise Exception(f"Failed to read file with any encoding: {encodings}")
+                    
+                file_contents.append(f"\n=== File: {rel_path} ===\n")
+                file_contents.append(f"{content}\n")
+                
             except Exception as e:
-                file_contents.append(f"{file}:\n```\nError reading file: {e}\n```\n")
+                file_contents.append(f"\n=== Error reading {rel_path} ===\n")
+                file_contents.append(f"Error: {str(e)}\n")
 
-    with open(output_file, 'w') as f:
-        f.write("Project Structure:\n")
-        f.write("\n".join(project_structure) + "\n\n")
-        f.write("File Contents:\n")
-        f.write("\n".join(file_contents))
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write("Project Structure:\n")
+            f.write("\n".join(project_structure) + "\n\n")
+            f.write("File Contents:\n")
+            f.write("\n".join(file_contents))
+        print(f"Successfully saved project contents to {output_file}")
+    except Exception as e:
+        print(f"Error writing to {output_file}: {e}")
 
 def main():
     script_dir = os.path.dirname(__file__)
